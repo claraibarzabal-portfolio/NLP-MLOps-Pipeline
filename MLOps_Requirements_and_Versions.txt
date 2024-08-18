@@ -1,0 +1,35 @@
+# MLOps Tools and Versions
+
+## Containerization and Deployment
+- docker==24.0.5: Ensures consistent and reproducible environments for machine learning models.
+
+## Workflow Orchestration
+- apache-airflow==2.7.4: Automates and manages complex workflows and data pipelines.
+
+## Machine Learning Project Management
+- metaflow==2.8.2: Simplifies the management of machine learning projects and their workflows.
+
+## Container Orchestration
+- kubernetes==1.27.3: Manages containerized applications, providing scaling and deployment capabilities.
+
+## Machine Learning Model Management on Kubernetes
+- kubeflow==1.6.0: Facilitates the deployment, management, and scaling of machine learning models on Kubernetes.
+
+## Code Testing
+- pytest==7.4.4: Ensures code reliability and robustness through comprehensive testing.
+
+## Logging and Monitoring
+- logging==0.5.1.2: Standard library for logging; consider additional tools for advanced model monitoring.
+  - Example: model-monitoring-tool==X.X.X (e.g., TensorBoard, MLflow Tracking)
+
+## Drift Detection
+- alibi-detect==0.7.0: Monitors and detects concept drift to maintain model performance.
+
+## Continuous Integration and Deployment (CI/CD)
+- jenkins==2.404.2: Automates build and deployment processes.
+- gitlab-ci-runner==16.0.1: Integrates with GitLab for streamlined CI/CD pipelines.
+- github-actions==2.0.0: Automates workflows and deployments within GitHub repositories.
+
+## Infrastructure as Code (IaC)
+- terraform==1.5.3: Automates cloud resource provisioning and management.
+- aws-cloudformation==2.21.0: Defines and provisions AWS infrastructure through code.
