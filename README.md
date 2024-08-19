@@ -108,11 +108,11 @@ This project is currently a work in progress, including the README file itself. 
 1. Establecer un proceso para actualizar y reentrenar modelos basado en el monitoreo continuo.
 
 ### 10. MLOps terminado: AGREGAR graficos si llego
-Focus on enhancing the application by adding graphs to both app_lstm (FastAPI) and the Streamlit interface. Here are some suggestions:
+I want to focus on enhancing the application by adding graphs to both app_lstm (FastAPI) and the Streamlit interface. 
 
-Bar Charts: Use bar charts to display the number of positive, negative, and neutral sentiments. This can provide a clear visual representation of the sentiment distribution.
+Bar Charts:  to display the number of positive, negative, and neutral sentiments. This can provide a clear visual representation of the sentiment distribution.
 
-Confusion Matrix: Include a confusion matrix to analyze the performance of your model, showing the true positives, true negatives, false positives, and false negatives.
+Confusion Matrix:  to analyze the performance of your model, showing the true positives, true negatives, false positives, and false negatives.
 
 Additional Analysis: charts or plots that analyze the distribution of sentiments over time, or visualize the performance metrics such as precision, recall, and F1 score.
 
