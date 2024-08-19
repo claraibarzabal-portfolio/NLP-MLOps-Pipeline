@@ -1,0 +1,6 @@
+{
+    "learning_rate": 2e-05,
+    "epochs": 5,
+    "batch_size": 32,
+    "device": "cuda"
+}
