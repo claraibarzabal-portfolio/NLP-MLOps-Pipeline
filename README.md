@@ -258,9 +258,62 @@ Batch processing is suitable as it does not require continuous data flow. The mo
    - **Action:** Deploy the model in an API for real-time queries.
    - **Tools:** 
      - **API Development:** FastAPI
-     - **Deployment Options:** AWS Lambda,
+       - **Deployment Options:** AWS Lambda, Google Cloud Functions, Dedicated server.
+     - **Containerization:** Docker for packaging the application and dependencies.
 
+6. **Monitoring and Maintenance**
+   - **Action:** Monitor performance and update data as needed.
+   - **Tools:** 
+     - **Monitoring:** Prometheus for system monitoring.
+     - **Drift Detection:** Evidently AI or Alibi Detect for detecting model performance degradation.
+   
+### MLOps Process Details
 
+1. **Orchestration and Pipelines**
+   - **Action:** Implement orchestration and pipeline management.
+   - **Tools:**
+     - **Orchestration:** Apache Airflow, Metaflow, Kubeflow.
+     - **Container Orchestration:** Kubernetes for managing containerized applications.
+
+2. **Implement MLflow**
+   - **Action:** Configure MLflow for managing experiments and models.
+   - **Tasks:**
+     - **Metrics Tracking:** Register metrics.
+     - **Artifact Management:** Register artifacts.
+     - **Model Management:** Register and version models.
+
+3. **CI/CD**
+   - **Action:** Develop a robust CI/CD pipeline to automate integration and deployment.
+   - **Tools:**
+     - **CI/CD Platforms:** GitHub Actions, GitLab CI/CD, Jenkins.
+     - **IaC:** Terraform for automated infrastructure management.
+
+4. **Unit Testing**
+   - **Action:** Implement unit tests to ensure code quality.
+   - **Tools:** pytest for testing code functionality.
+
+5. **Infrastructure as Code (IaC)**
+   - **Action:** Use Terraform for automated infrastructure management.
+   - **Tasks:** Define and provision infrastructure resources.
+
+6. **Model Deployment**
+   - **Action:** Configure batch processing deployment for the model.
+   - **Tools:**
+     - **Batch Processing:** Apache Airflow, Kubernetes + Kubeflow, Apache Spark.
+
+7. **Monitoring and Drift Detection**
+   - **Action:** Implement monitoring and drift detection mechanisms.
+   - **Tools:**
+     - **Monitoring:** Prometheus.
+     - **Drift Detection:** Evidently AI, Alibi Detect.
+
+8. **Data Versioning**
+   - **Action:** Implement a system for versioning data used in training and evaluation.
+   - **Tools:** DVC or MLflow.
+
+9. **Model Updates and Retraining**
+   - **Action:** Establish a process for updating and retraining models based on continuous monitoring.
+   - **Tools:** Airflow, Kubeflow, MLflow.
   
 - # Project Management and Technical Implementation
 
