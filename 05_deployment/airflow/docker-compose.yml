@@ -16,11 +16,10 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-    command: >
-      bash -c "airflow db init && airflow webserver"
+    command: ["airflow", "webserver"]
 
   airflow-scheduler:
-    image: your-custom-airflow-image:latest
+    image: apache/airflow:2.7.2
     container_name: airflow-scheduler
     restart: always
     volumes:
@@ -31,12 +30,12 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-    command: airflow scheduler
+    command: ["airflow", "scheduler"]
     depends_on:
       - airflow-webserver
 
   airflow-worker:
-    image: your-custom-airflow-image:latest
+    image: apache/airflow:2.7.2
     container_name: airflow-worker
     environment:
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -47,7 +46,7 @@ services:
       - ./logs:/opt/airflow/logs
 
   postgres:
-    image: postgres:13
+    image: postgres:14
     container_name: postgres
     environment:
       POSTGRES_USER: airflow
@@ -55,8 +54,13 @@ services:
       POSTGRES_DB: airflow
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - airflow_network
 
 volumes:
   postgres_data:
+
+networks:
+  airflow_network:
 
  
