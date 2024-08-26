@@ -38,6 +38,123 @@ Optimize and Maintain DAGs:
 
 Refactor Code: Periodically review and refactor your DAGs for performance improvements and code cleanliness.
 Update Dependencies: Ensure that your DAGs and tasks use the latest versions of dependencies and packages.
+
+---
+---
+
+Claro, aquí tienes los pasos adaptados para trabajar en PowerShell dentro de Visual Studio Code. Te guiaré a través de la instalación y configuración de CeleryExecutor con Redis para tu proyecto de NLP/MLOps:
+
+### Paso 1: Instalar Dependencias
+
+1. **Instalar Celery y Redis en tu entorno virtual**:
+   - Abre PowerShell en VSCode y activa tu entorno virtual (si aún no lo has hecho):
+     ```powershell
+     .\venv\Scripts\Activate
+     ```
+   - Luego, instala Celery y Redis:
+     ```powershell
+     pip install apache-airflow[celery]
+     pip install redis
+     ```
+
+2. **Instalar Redis**:
+   - Puedes descargar e instalar Redis desde [la página oficial de Redis](https://redis.io/download). Si estás usando Windows, puedes utilizar [Redis para Windows](https://github.com/microsoftarchive/redis/releases).
+   - Después de descargar el instalador, sigue las instrucciones para instalar Redis.
+
+### Paso 2: Configurar Redis
+
+1. **Iniciar Redis**:
+   - Abre una nueva ventana de PowerShell y navega a la carpeta donde instalaste Redis.
+   - Inicia el servidor Redis ejecutando el siguiente comando:
+     ```powershell
+     .\redis-server.exe
+     ```
+   - Asegúrate de que Redis esté funcionando correctamente ejecutando:
+     ```powershell
+     .\redis-cli.exe ping
+     ```
+   - Deberías recibir una respuesta `PONG`.
+
+### Paso 3: Configurar Airflow para Usar CeleryExecutor
+
+1. **Editar `airflow.cfg`**:
+   - Abre el archivo `airflow.cfg` con un editor de texto. Por lo general, se encuentra en el directorio de instalación de Airflow (dentro del entorno virtual).
+   - Realiza los siguientes cambios:
+
+   ```ini
+   [core]
+   # Cambia el executor a CeleryExecutor
+   executor = CeleryExecutor
+
+   [celery]
+   # Configuración del broker y backend de resultados para Redis
+   broker_url = redis://localhost:6379/0
+   result_backend = redis://localhost:6379/0
+
+   # Configura los trabajadores y el número de procesos
+   worker_concurrency = 4
+   ```
+
+2. **Configurar Variables de Entorno** (opcional pero recomendado):
+   - Puedes configurar las variables de entorno en PowerShell de la siguiente manera:
+     ```powershell
+     $env:AIRFLOW__CELERY__BROKER_URL = "redis://localhost:6379/0"
+     $env:AIRFLOW__CELERY__RESULT_BACKEND = "redis://localhost:6379/0"
+     $env:AIRFLOW__CORE__EXECUTOR = "CeleryExecutor"
+     ```
+
+### Paso 4: Configurar y Ejecutar Celery Workers
+
+1. **Iniciar los Workers de Celery**:
+   - Abre una nueva ventana de PowerShell y navega a la carpeta de tu proyecto Airflow.
+   - Ejecuta el siguiente comando para iniciar los workers de Celery:
+     ```powershell
+     airflow celery worker
+     ```
+
+2. **Configurar el Webserver de Airflow**:
+   - Abre una nueva ventana de PowerShell y navega a la carpeta de tu proyecto Airflow.
+   - Inicia el webserver de Airflow en el puerto 8080:
+     ```powershell
+     airflow webserver --port 8080
+     ```
+
+3. **Configurar el Scheduler de Airflow**:
+   - Abre otra ventana de PowerShell y navega a la carpeta de tu proyecto Airflow.
+   - Inicia el scheduler de Airflow:
+     ```powershell
+     airflow scheduler
+     ```
+
+### Paso 5: Verificar la Configuración
+
+1. **Acceder a la Interfaz Web de Airflow**:
+   - Abre tu navegador y ve a `http://localhost:8080`. Deberías poder acceder a la interfaz de usuario de Airflow.
+
+2. **Revisar los Logs**:
+   - Asegúrate de que no haya errores en los logs de los workers, el scheduler y el webserver. Los logs suelen estar en el directorio `logs` dentro de la instalación de Airflow.
+
+### Consideraciones Adicionales
+
+- **Seguridad**: Asegúrate de configurar adecuadamente los permisos y la seguridad para Redis y Airflow en un entorno de producción.
+- **Escalabilidad**: Ajusta el número de workers y su concurrencia según las necesidades de procesamiento de tu proyecto.
+
+### Alternativa: Astronomer
+
+Si prefieres una solución gestionada y profesional, **Astronomer** puede ser una excelente opción. Te ofrece una infraestructura administrada y soporte especializado. La configuración básica es similar a la de CeleryExecutor, pero Astronomer maneja muchos aspectos de la infraestructura y la administración por ti.
+
+**Pasos para usar Astronomer**:
+
+1. **Registrarse en Astronomer**:
+   - Regístrate en [Astronomer](https://www.astronomer.io/) y sigue las instrucciones para configurar tu entorno.
+
+2. **Migrar Tu Proyecto**:
+   - Sigue las guías proporcionadas por Astronomer para desplegar y gestionar tu proyecto en su plataforma.
+
+3. **Utilizar Soporte y Herramientas**:
+   - Aprovecha el soporte y las herramientas de Astronomer para gestionar la infraestructura y resolver problemas.
+
+Esta guía debería proporcionarte un camino claro para configurar CeleryExecutor en tu entorno de Airflow usando PowerShell en VSCode. Si necesitas más ayuda con Astronomer o cualquier otra opción, no dudes en decírmelo.
 # Flujo de Trabajo para el Proyecto
 
 ## 1. Configurar y Probar Airflow
