@@ -1,66 +1,58 @@
-version: '3'
+version: '3.3'
 
 services:
+  postgres:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: airflow_user
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: airflow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # redis:
+  #   image: redis:latest
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+
   airflow-webserver:
     image: apache/airflow:2.7.2
     container_name: airflow-webserver
-    restart: always
+    environment:
+      # Configuración de Airflow
+      AIRFLOW__CORE__DAGS_FOLDER: /usr/local/airflow/dags
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      # Variables para crear el usuario admin de Airflow
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: 789456
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
     volumes:
-      - ./dags:/opt/airflow/dags
-      - ./plugins:/opt/airflow/plugins
-      - ./airflow.cfg:/opt/airflow/airflow.cfg
-      - ./logs:/opt/airflow/logs
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
-    command: ["airflow", "webserver"]
+      - ./dags:/usr/local/airflow/dags
+      - ./plugins:/usr/local/airflow/plugins
+      - ./airflow.cfg:/usr/local/airflow/airflow.cfg
 
   airflow-scheduler:
     image: apache/airflow:2.7.2
     container_name: airflow-scheduler
-    restart: always
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./plugins:/opt/airflow/plugins
-      - ./airflow.cfg:/opt/airflow/airflow.cfg
-      - ./logs:/opt/airflow/logs
     environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-    command: ["airflow", "scheduler"]
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
     depends_on:
-      - airflow-webserver
-
-  airflow-worker:
-    image: apache/airflow:2.7.2
-    container_name: airflow-worker
-    environment:
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - postgres
     volumes:
-      - ./dags:/opt/airflow/dags
-      - ./plugins:/opt/airflow/plugins
-      - ./airflow.cfg:/opt/airflow/airflow.cfg
-      - ./logs:/opt/airflow/logs
-
-  postgres:
-    image: postgres:14
-    container_name: postgres
-    environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - airflow_network
+      - ./dags:/usr/local/airflow/dags
+      - ./plugins:/usr/local/airflow/plugins
+      - ./airflow.cfg:/usr/local/airflow/airflow.cfg
 
 volumes:
   postgres_data:
-
-networks:
-  airflow_network:
-
- 
