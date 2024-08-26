@@ -13,7 +13,31 @@ This project is currently a work in progress, including the README file itself. 
 # DAGS
 # PROXIMOS PASOS
 # Próximos Pasos: DAGS, Airflow, MLFlow, CI/CD, Astro.(Dps Dockerx2, dps pruebas, despliegue (airflow, kubernetes, kubeflow, spark. )monitoreo, drift, dvc, actualizacion y reentrenamiento.)
+DAGs Configuration and Management Process
+Define DAGs:
 
+Create DAGs: Write Python scripts to define your Directed Acyclic Graphs (DAGs). These DAGs will orchestrate your workflows.
+Define Tasks: Within each DAG, specify tasks using operators (e.g., PythonOperator, BashOperator, TriggerDagRunOperator).
+Configure DAGs in Airflow:
+
+Place DAGs: Save your DAG files in the Airflow dags folder. This is where Airflow will automatically discover and load them.
+Set Default Arguments: Define default_args such as owner, depends_on_past, start_date, retries, and retry_delay to handle task execution behavior.
+Test DAGs:
+
+Manual Testing: Trigger DAGs manually from the Airflow UI to ensure they execute as expected.
+Check Logs: Monitor task logs and debug any issues. Access logs through the Airflow UI under the Logs tab for each task instance.
+Run Tests: Use the Airflow CLI to test DAGs:
+bash
+Copiar código
+airflow dags test <dag_id> <start_date>
+Verify Scheduling:
+
+Ensure Correct Schedule: Confirm that DAGs are running as per the defined schedule_interval (e.g., @daily, @monthly).
+Monitor Execution: Use the Airflow UI to check the DAG runs and task statuses.
+Optimize and Maintain DAGs:
+
+Refactor Code: Periodically review and refactor your DAGs for performance improvements and code cleanliness.
+Update Dependencies: Ensure that your DAGs and tasks use the latest versions of dependencies and packages.
 # Flujo de Trabajo para el Proyecto
 
 ## 1. Configurar y Probar Airflow
