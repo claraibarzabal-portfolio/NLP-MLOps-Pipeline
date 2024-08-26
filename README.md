@@ -9,9 +9,78 @@ This project is currently a work in progress, including the README file itself. 
 
 
 ---
+# AHORA
+# DAGS
 # PROXIMOS PASOS
-# Próximos Pasos: Docker ahora y despues sigo con orquestacion(Airflow, Metaflow, o Kubeflow. (Kubernetes))
-## DOCKER
+# Próximos Pasos: DAGS, Airflow, MLFlow, CI/CD, Astro.(Dps Dockerx2, dps pruebas, despliegue (airflow, kubernetes, kubeflow, spark. )monitoreo, drift, dvc, actualizacion y reentrenamiento.)
+
+# Flujo de Trabajo para el Proyecto
+
+## 1. Configurar y Probar Airflow
+
+- **Configurar los DAGs en Airflow**: Definir y probar los DAGs necesarios para la orquestación de los pipelines.
+- **Probar los DAGs**: Verificar que los DAGs funcionen correctamente.
+
+## 2. Implementar MLflow
+
+- **Configurar MLflow**: Establecer el entorno de MLflow para el seguimiento de experimentos y la gestión de modelos.
+- **Integrar MLflow con Airflow**: Crear tareas en los DAGs que interactúen con MLflow si es necesario.
+
+## 3. Realizar Pruebas Unitarias con pytest
+
+- **Escribir Pruebas Unitarias**: Desarrollar pruebas unitarias para los scripts, modelos y cualquier otra lógica del proyecto.
+- **Ejecutar las Pruebas**: Usar pytest para ejecutar las pruebas y verificar que el código funcione correctamente.
+- **Corregir Errores**: Corregir los errores encontrados durante las pruebas antes de continuar.
+
+## 4. Configurar CI/CD
+
+- **Configurar el Pipeline de CI/CD**:
+  - **GitHub Actions, GitLab CI/CD o Jenkins**: Configurar el pipeline para la automatización del proceso de integración y despliegue.
+  - **Terraform**: Utilizar Terraform para gestionar la infraestructura como código.
+
+## 5. Construir y Ejecutar Contenedores Docker
+
+- **Construir Contenedores Docker**:
+  - **FastAPI**:
+    ```bash
+    cd 05_deployment/fastapi
+    docker build -t fastapi-lstm .
+    ```
+  - **Streamlit**:
+    ```bash
+    cd 05_deployment/streamlit
+    docker build -t streamlit-frontend .
+    ```
+- **Ejecutar Contenedores Docker**:
+  - **FastAPI**:
+    ```bash
+    docker run -d -p 8000:8000 fastapi-lstm
+    ```
+  - **Streamlit**:
+    ```bash
+    docker run -d -p 8501:8501 streamlit-frontend
+    ```
+
+## 6. Configurar Astro
+
+- **Configurar Astro**: Usar Astro para gestionar el despliegue y la escalabilidad de Airflow en producción.
+- **Integrar Astro con Airflow**: Conectar Astro con el entorno de Airflow.
+
+## 7. Desplegar
+
+- **Configurar el Despliegue en Producción**: Preparar el entorno de producción y realizar el despliegue de Airflow, MLflow, FastAPI y Streamlit usando Astro para la gestión.
+
+## 8. Configurar Monitoreo y Detección de Drift
+
+- **Implementar Monitoreo**: Configurar herramientas de monitoreo y detección de drift como Prometheus, Evidently AI o Alibi Detect.
+
+## 9. Implementar Versionamiento de Datos y Actualización de Modelos
+
+- **Configurar DVC**: Implementar DVC para el control de versiones de datos.
+- **Actualizar y Reentrenar Modelos**: Establecer procesos para la actualización y reentrenamiento de modelos basado en monitoreo y detección de drift.
+
+
+## DOCKERx2
 ## A. Construcción de Contenedores Docker
 
 ### Para FastAPI:
