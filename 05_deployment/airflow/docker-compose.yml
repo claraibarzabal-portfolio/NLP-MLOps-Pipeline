@@ -11,48 +11,108 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  
+  postgres-init:
+    image: postgres:12
+    depends_on:
+      - postgres
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      until pg_isready -h postgres -p 5432; do
+        echo 'Waiting for PostgreSQL...';
+        sleep 2;
+      done;
+      psql -h postgres -U postgres -f /docker-entrypoint-initdb.d/init.sql;
+      "
+    volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # redis:
-  #   image: redis:latest
-  #   container_name: redis
-  #   ports:
-  #     - "6379:6379"
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
 
   airflow-webserver:
     image: apache/airflow:2.7.2
     container_name: airflow-webserver
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      # Configuración de Airflow
-      AIRFLOW__CORE__DAGS_FOLDER: /usr/local/airflow/dags
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
       AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      # Variables para crear el usuario admin de Airflow
-      _AIRFLOW_WWW_USER_USERNAME: admin
-      _AIRFLOW_WWW_USER_PASSWORD: 789456
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+      _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_ADMIN_USERNAME}
+      _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
       - postgres
+      - postgres-init
+      - redis
+      - airflow-scheduler
+
     volumes:
-      - ./dags:/usr/local/airflow/dags
-      - ./plugins:/usr/local/airflow/plugins
-      - ./airflow.cfg:/usr/local/airflow/airflow.cfg
+      - ${DAGS_FOLDER}:/opt/airflow/dags
+      - ${PLUGINS_FOLDER}:/opt/airflow/plugins
+      - ${AIRFLOW_CFG_FOLDER}:/opt/airflow/airflow.cfg
+      - ./wait-for-it.sh:/opt/airflow/wait-for-it.sh 
+      - ./create_airflow_user.sh /opt/airflow/create_airflow_user.sh
+
+    command: ["bash", "-c", "/opt/airflow/wait-for-it.sh postgres:5432 -- airflow db init && /opt/airflow/create_airflow_user.sh && airflow webserver"]
 
   airflow-scheduler:
     image: apache/airflow:2.7.2
     container_name: airflow-scheduler
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+      AIRFLOW__CORE__FERNET_KEY: <generate_a_fernet_key>
       AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      
     depends_on:
-      - postgres
+      - postgres 
+      - postgres-init     
+      - redis
+
     volumes:
-      - ./dags:/usr/local/airflow/dags
-      - ./plugins:/usr/local/airflow/plugins
-      - ./airflow.cfg:/usr/local/airflow/airflow.cfg
+      - ${DAGS_FOLDER}:/opt/airflow/dags
+      - ${PLUGINS_FOLDER}:/opt/airflow/plugins
+      - ${AIRFLOW_CFG_FOLDER}:/opt/airflow/airflow.cfg
+      - ./wait-for-it.sh:/opt/airflow/wait-for-it.sh 
+      - ./create_airflow_user.sh /opt/airflow/create_airflow_user.sh
+    
+    command: ["airflow", "scheduler"]
+
+
+  airflow-worker:
+    image: apache/airflow:2.7.2
+    container_name: airflow-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql+psycopg2://airflow_user:123456@postgres:5432/airflow_db
+    depends_on:
+      - airflow-scheduler
+      - redis
+    volumes:
+      - ${DAGS_FOLDER}:/opt/airflow/dags
+      - ${PLUGINS_FOLDER}:/opt/airflow/plugins
+      - ${AIRFLOW_CFG_FOLDER}:/opt/airflow/airflow.cfg
+    command: ["celery", "worker"]
 
 volumes:
   postgres_data:

@@ -1,33 +1,29 @@
-# Utilizar una imagen base oficial de Airflow
 FROM apache/airflow:2.7.2
 
-# Copiar los archivos de configuración, DAGs y plugins al contenedor
-COPY ./airflow.cfg /usr/local/airflow/airflow.cfg
-COPY ./dags /usr/local/airflow/dags
-COPY ./plugins /usr/local/airflow/plugins
+# Copia archivos necesarios
+COPY ./airflow.cfg /opt/airflow/airflow.cfg
+COPY ./dags /opt/airflow/dags
+COPY ./plugins /opt/airflow/plugins
+COPY ./wait-for-it.sh /opt/airflow/wait-for-it.sh 
 
-# Copiar el script de creación de usuario
-COPY create_airflow_user.sh /usr/local/airflow/create_airflow_user.sh
+COPY ./create_airflow_user.sh /opt/airflow/create_airflow_user.sh
+COPY ./init-airflow.sh /opt/airflow/init-airflow.sh
 
-# Dar permisos de ejecución al script
-RUN chmod +x /usr/local/airflow/create_airflow_user.sh
+# Cambia permisos para los scripts
+USER root
+RUN chmod +x /opt/airflow/wait-for-it.sh /opt/airflow/create_airflow_user.sh /opt/airflow/init-airflow.sh
 
-# Configurar el directorio de trabajo
-WORKDIR /usr/local/airflow
+# Cambia al usuario airflow
+USER airflow
 
-# Instalar dependencias adicionales si es necesario para los DAGs
-# RUN pip install --no-cache-dir <paquete>
+# Instala paquetes con pip
+RUN pip install 'apache-airflow[celery, redis]'
 
-# Exponer el puerto para el webserver
-EXPOSE 8080
+# Establece el directorio de trabajo
+WORKDIR /opt/airflow
 
-# Ejecutar el script de creación de usuario al inicio
-RUN /usr/local/airflow/create_airflow_user.sh
-
-# Iniciar tanto el scheduler como el webserver
-CMD ["bash", "-c", "airflow db upgrade && airflow scheduler & airflow webserver"]
-
-
+# Comando por defecto para inicializar la base de datos y crear el usuario
+CMD ["bash", "-c", "/opt/airflow/wait-for-it.sh postgres:5432 -- /opt/airflow/init-airflow.sh && airflow webserver"]
 
 
 

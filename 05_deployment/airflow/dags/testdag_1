@@ -1,0 +1,42 @@
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.operators.dagrun import TriggerDagRunOperator
+from datetime import datetime, timedelta
+
+# Definir los argumentos por defecto del DAG
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'start_date': datetime(2023, 8, 27),  # Ajusta la fecha
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
+
+# Definir el DAG
+with DAG(
+    dag_id='my_first_dag',
+    default_args=default_args,
+    description='Mi primer DAG con Airflow',
+    schedule_interval=timedelta(days=1),
+    catchup=False,
+) as dag:
+
+    def my_task():
+        print("¡Hola, Airflow!")
+
+    # Operador Python
+    task_1 = PythonOperator(
+        task_id='print_hello',
+        python_callable=my_task,
+    )
+
+    # Otro operador (Trigger DAG)
+    trigger_dag = TriggerDagRunOperator(
+        task_id='trigger_another_dag',
+        trigger_dag_id='otro_dag',  # Nombre del DAG a desencadenar
+    )
+
+    # Definir la secuencia de tareas
+    task_1 >> trigger_dag

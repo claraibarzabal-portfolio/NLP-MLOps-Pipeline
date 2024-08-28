@@ -1,5 +1,7 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
+from airflow.utils.task_group import TaskGroup
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime, timedelta
 
 def api_deployment():
@@ -18,20 +20,26 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-with DAG('api_and_dashboard_dag',
-         default_args=default_args,
-         description='DAG para API y dashboards',
-         schedule_interval='@monthly',
-         catchup=False) as dag:
+with DAG(
+    dag_id='api_and_dashboard_dag',
+    default_args=default_args,
+    description='DAG para API y dashboards',
+    schedule_interval='@monthly',
+    catchup=False
+) as dag:
 
-    deploy_api = PythonOperator(
-        task_id='api_deployment',
-        python_callable=api_deployment
-    )
+    # Agrupación de tareas usando TaskGroup
+    with TaskGroup(group_id='api_tasks') as api_tasks:
+        deploy_api = PythonOperator(
+            task_id='api_deployment',
+            python_callable=api_deployment
+        )
 
-    create_dashboard = PythonOperator(
-        task_id='dashboard_creation',
-        python_callable=dashboard_creation
-    )
+    with TaskGroup(group_id='dashboard_tasks') as dashboard_tasks:
+        create_dashboard = PythonOperator(
+            task_id='dashboard_creation',
+            python_callable=dashboard_creation
+        )
 
+    # Definir el orden de ejecución
     deploy_api >> create_dashboard
